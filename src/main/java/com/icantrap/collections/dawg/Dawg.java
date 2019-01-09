@@ -14,11 +14,13 @@ import java.io.Reader;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.input.ReaderInputStream;
@@ -27,6 +29,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.time.StopWatch;
 
 import com.icantrap.collections.Stack;
+import com.sun.org.apache.xpath.internal.axes.ChildIterator;
 
 /**
  * An implementation of a Directed Acyclic Word Graph.  This implementation is intended to be efficiently stored, loaded,
@@ -97,21 +100,22 @@ public class Dawg {
      * @param is the stream with the data to create the Dawg instance.
      * @return a new Dawg instance with the data loaded
      * @throws DataFormatException if the InputStream doesn't contain the proper data format for loading a Dawg instance
-     * @throws IOException         if reading from the stream casues an IOException.
+     * @throws IOException         if reading from the stream causes an IOException.
      */
     public static Dawg load(InputStream is) throws IOException {
-        BufferedInputStream bis = new BufferedInputStream(is, 8 * 1024);
-        ObjectInputStream ois = new ObjectInputStream(bis);
+        try (BufferedInputStream bis = new BufferedInputStream(is, 8 * 1024)) {
+            ObjectInputStream ois = new ObjectInputStream(bis);
 
-        int[] ints;
+            int[] ints;
 
-        try {
-            ints = (int[]) ois.readObject();
-        } catch (ClassNotFoundException cnfe) {
-            throw new DataFormatException("Bad file.  Not valid for loading com.icantrap.collections.dawg.Dawg", cnfe);
+            try {
+                ints = (int[]) ois.readObject();
+            } catch (ClassNotFoundException cnfe) {
+                throw new DataFormatException("Bad file.  Not valid for loading com.icantrap.collections.dawg.Dawg", cnfe);
+            }
+
+            return new Dawg(ints);
         }
-
-        return new Dawg(ints);
     }
 
     /**
@@ -144,6 +148,39 @@ public class Dawg {
         }
 
         return canTerminate(ptr);
+    }
+
+    public Set<String> suggest(String prefix) {
+        if (!lettersValid(prefix)) {
+            return Collections.emptySet();
+        }
+
+        final Set<String> suggestions = new TreeSet<>();
+
+        suggestRecursive(suggestions, prefix, nodes[0]);
+
+        return suggestions;
+    }
+
+    private void suggestRecursive(Set<String> suggestions, String prefix, int root) {
+        int parent = root;
+        char[] letters = prefix.toUpperCase().toCharArray();
+        for (char c : letters) {
+            parent = findChild(parent, c);
+            if (-1 == parent) {
+                return;
+            }
+        }
+
+        final ChildIterator iterator = childIterator(parent);
+        while (iterator.hasNext()) {
+            final Integer next = iterator.next();
+            final String candidate = prefix + getChar(next);
+            if (canTerminate(next)) {
+                suggestions.add(candidate.toLowerCase());
+            }
+            suggestRecursive(suggestions, candidate, root);
+        }
     }
 
     /**
@@ -470,6 +507,11 @@ public class Dawg {
         public int hashCode() {
             return word.hashCode();
         }
+
+        @Override
+        public String toString() {
+            return word;
+        }
     }
 
     private class ChildIterator implements Iterator<Integer> {
@@ -507,7 +549,7 @@ public class Dawg {
         return words;
     }
 
-    private Integer findChild(int node, char c) {
+    private int findChild(int node, char c) {
         for (Iterator<Integer> iter = childIterator(node); iter.hasNext(); ) {
             int child = iter.next();
 

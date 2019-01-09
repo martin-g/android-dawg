@@ -1,5 +1,7 @@
 package com.icantrap.collections.dawg;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -35,6 +37,7 @@ class SimpleDawgTest {
         assertTrue(dawg.contains("blip"));
         assertTrue(dawg.contains("can"));
         assertTrue(dawg.contains("cat"));
+        assertTrue(dawg.contains("cat in a box"));
         assertTrue(dawg.contains("cate"));
         assertTrue(dawg.contains("cats"));
         assertTrue(dawg.contains("hello"));
@@ -42,10 +45,16 @@ class SimpleDawgTest {
     }
 
     @Test
-    void simple() {
-        final Dawg.Result[] subwords = dawg.subwords("cats", null);
-        Set<String> words = Dawg.extractWords(subwords);
+    void suggest() {
+        final Set<String> suggestions = dawg.suggest("ca");
 
-        System.err.println("=== words:\n" + words);
+        assertAll(
+            () -> assertEquals(5, suggestions.size()),
+            () -> assertTrue(suggestions.contains("can"), "can"),
+            () -> assertTrue(suggestions.contains("cat"), "cat"),
+            () -> assertTrue(suggestions.contains("cat in a box"), "cat in a box"),
+            () -> assertTrue(suggestions.contains("cate"), "cate"),
+            () -> assertTrue(suggestions.contains("cats"), "cats")
+        );
     }
 }

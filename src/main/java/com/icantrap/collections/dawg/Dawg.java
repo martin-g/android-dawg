@@ -13,7 +13,7 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 /**
- * An implementation of a Directed Acycilic Word Graph.  This implementation is intended to be efficiently stored, loaded,
+ * An implementation of a Directed Acyclic Word Graph.  This implementation is intended to be efficiently stored, loaded,
  * and used with Android apps.  This means that the storage format and memory footprint have been minimized.
  */
 public class Dawg
@@ -154,17 +154,17 @@ public class Dawg
     // yes, there's a lot of repeated code here.  it might get cleaned up at the end.
   {
     if (!lettersValid (letters))
-      return null;
+      return new Result[0];
     
     if (!patternValid (pattern))
-      return null;
+      return new Result[0];
     
     List<PatternToken> patternTokens = processPattern (pattern);
     int tokenCount = patternTokens.size ();
 
-    Set<Result> results = new HashSet<Result> (); // the running list of subwords
+    Set<Result> results = new HashSet<>(); // the running list of subwords
 
-    Stack<StackEntry> stack = new Stack<StackEntry> ();  // a stack of paths to traverse. This prevents the StackOverflowException.
+    Stack<StackEntry> stack = new Stack<>();  // a stack of paths to traverse. This prevents the StackOverflowException.
     stack.push (new StackEntry (nodes[0], letters.toUpperCase ().toCharArray (), "", 0));
 
     while (!stack.empty ())
@@ -192,8 +192,8 @@ public class Dawg
               {
                 chars = ArrayUtils.removeElement (chars, '?');
                 if (nextWildcardPositions == null)
-                  nextWildcardPositions = new ArrayList<Integer> ();
-                else nextWildcardPositions = new ArrayList<Integer> (entry.wildcardPositions);
+                  nextWildcardPositions = new ArrayList<>();
+                else nextWildcardPositions = new ArrayList<>(entry.wildcardPositions);
                 nextWildcardPositions.add (entry.subword.length ());
               }
               else continue;
@@ -240,8 +240,8 @@ public class Dawg
             {
               nextChars = ArrayUtils.removeElement (chars, '?');
               if (nextWildcardPositions == null)
-                nextWildcardPositions = new ArrayList<Integer> ();
-              else nextWildcardPositions = new ArrayList<Integer> (entry.wildcardPositions);
+                nextWildcardPositions = new ArrayList<>();
+              else nextWildcardPositions = new ArrayList<>(entry.wildcardPositions);
               nextWildcardPositions.add (entry.subword.length ());
             }
             else continue;
@@ -279,8 +279,8 @@ public class Dawg
               {
                 nextChars = ArrayUtils.removeElement (chars, '?');
                 if (nextWildcardPositions == null)
-                  nextWildcardPositions = new ArrayList<Integer> ();
-                else nextWildcardPositions = new ArrayList<Integer> (entry.wildcardPositions);
+                  nextWildcardPositions = new ArrayList<> ();
+                else nextWildcardPositions = new ArrayList<> (entry.wildcardPositions);
                 nextWildcardPositions.add (entry.subword.length ());
               }
               else found = false;
@@ -319,8 +319,8 @@ public class Dawg
           {
             nextChars = ArrayUtils.removeElement (chars, '?');
             if (nextWildcardPositions == null)
-              nextWildcardPositions = new ArrayList<Integer> ();
-            else nextWildcardPositions = new ArrayList<Integer> (entry.wildcardPositions);
+              nextWildcardPositions = new ArrayList<> ();
+            else nextWildcardPositions = new ArrayList<> (entry.wildcardPositions);
             nextWildcardPositions.add (entry.subword.length ());
           }
           else continue;
@@ -336,7 +336,7 @@ public class Dawg
         addCandidatesFromLetters (stack, node, nextChars, nextSubwordBuilder.toString (), nextWildcardPositions, patternIndex);
       }
     }
-    return results.toArray (new Result[results.size ()]);
+    return results.toArray (new Result[0]);
   }
 
   private ChildIterator childIterator (int parent)
@@ -360,7 +360,7 @@ public class Dawg
 
   private List<PatternToken> processPattern (String pattern)
   {
-    List<PatternToken> patternTokens = new ArrayList<PatternToken> ();
+    List<PatternToken> patternTokens = new ArrayList<>();
 
     if ((null != pattern) && (pattern.length () != 0))
     {
@@ -468,7 +468,7 @@ public class Dawg
   
   private Set<Character> getUniqueLetters (char[] letters)
   {
-    Set<Character> uniqueLetters = new HashSet<Character> ();
+    Set<Character> uniqueLetters = new HashSet<>();
     for (char letter : letters)
       uniqueLetters.add (letter);
 
@@ -478,7 +478,7 @@ public class Dawg
   public class Result
   {
     public final String word;
-    public int[] wildcardPositions = null;
+    int[] wildcardPositions = null;
 
     private Result (String word, List<Integer> wildcardPositions)
     {
@@ -527,10 +527,7 @@ public class Dawg
       if (-1 == childIndex)
         return false;
 
-      if (isLastChild (child))
-        return false;
-
-      return true;
+      return !isLastChild(child);
     }
 
     public Integer next ()
@@ -547,9 +544,9 @@ public class Dawg
     }
   }
 
-  public static Set<String> extractWords (Result[] results)
+  static Set<String> extractWords(Result[] results)
   {
-    Set<String> words = new HashSet<String> ();
+    Set<String> words = new HashSet<>();
     for (Result result: results)
       words.add (result.word);
 
@@ -594,19 +591,19 @@ public class Dawg
    */
   private class PatternToken
   {
-    public PatternToken (char letter)
+    PatternToken (char letter)
     {
-      this.letter = letter;
+      this(letter, false);
     }
 
-    public PatternToken (char letter, boolean required)
+    PatternToken(char letter, boolean required)
     {
       this.letter = letter;
       this.required = required;
     }
 
     public final char letter;
-    public boolean required = false;  // if the letter is not required, it's optional
+    public final boolean required;  // if the letter is not required, it's optional
   }
 
   /**
@@ -614,7 +611,7 @@ public class Dawg
    */
   private class StackEntry
   {
-    public StackEntry (int node, char[] chars, String subword, int patternIndex)
+    StackEntry(int node, char[] chars, String subword, int patternIndex)
     {
       this.node = node;             // the current node to examine
       this.chars = chars.clone ();  // the available letters for word building
@@ -622,7 +619,7 @@ public class Dawg
       this.patternIndex = patternIndex;
     }
 
-    public StackEntry (int node, char[] chars, String subword, List<Integer> wildcardPositions, int patternIndex)
+    StackEntry(int node, char[] chars, String subword, List<Integer> wildcardPositions, int patternIndex)
     {
       this (node, chars, subword, patternIndex);
       this.wildcardPositions = wildcardPositions;
@@ -630,9 +627,9 @@ public class Dawg
 
     public final int node;
     public final char[] chars;
-    public final String subword;
-    public List<Integer> wildcardPositions = null;
-    public final int patternIndex;
+    final String subword;
+    List<Integer> wildcardPositions = null;
+    final int patternIndex;
   }
 
   public static void main (String[] args) throws IOException
@@ -674,6 +671,7 @@ public class Dawg
         }
 
         System.out.println ("Found " + results.length + " matches in " + stopWatch.getTime () + " ms.");
+        break;
       }
 
       System.out.println ();

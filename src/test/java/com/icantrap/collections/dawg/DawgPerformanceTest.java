@@ -4,6 +4,7 @@ package com.icantrap.collections.dawg;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
@@ -13,29 +14,35 @@ import org.apache.commons.lang3.time.StopWatch;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class TrieValidationTest {
-    private DawgBuilder dawgBuilder;
+class DawgPerformanceTest {
+
+    private Dawg dawg;
 
     @BeforeEach
     void before() throws IOException {
-//    assumeThat (System.getProperty ("RUN_VALIDATION"), is ("on"));
+
         try (LineIterator iter = IOUtils.lineIterator(getClass().getResourceAsStream("/TWL06.txt"), StandardCharsets.UTF_8)) {
-            dawgBuilder = new DawgBuilder();
+            DawgBuilder dawgBuilder = new DawgBuilder();
 
             while (iter.hasNext())
                 dawgBuilder.add(iter.next());
 
+            System.out.println("Uncompressed:  " + dawgBuilder.nodeCount() + " nodes");
+
+            StopWatch stopWatch = new StopWatch();
+            stopWatch.start();
+            dawg = dawgBuilder.build();
+            stopWatch.stop();
+
+            System.out.println("Time to compress:  " + stopWatch.getTime() + " ms.");
         }
 
-        System.out.println("Uncompressed:  " + dawgBuilder.nodeCount() + " nodes");
+        System.out.println("Compressed:  " + dawg.nodeCount() + " nodes");
 
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
-        dawgBuilder.build();
-        stopWatch.stop();
-
-        System.out.println("Time to compress:  " + stopWatch.getTime() + " ms.");
-        System.out.println("Compressed:  " + dawgBuilder.nodeCount() + " nodes");
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        dawg.store(baos);
+        final int size = baos.toByteArray().length;
+        System.out.println("Runtime size:  " + size + " bytes");
     }
 
     @Test
@@ -45,13 +52,15 @@ class TrieValidationTest {
             StopWatch stopWatch = new StopWatch();
             stopWatch.start();
 
+            int i = 0;
             while (iter.hasNext()) {
                 String word = iter.next();
-                assertTrue(dawgBuilder.contains(word), "Missing word (" + word + ")");
+                assertTrue(dawg.contains(word), "Missing word (" + word + ")");
+                i++;
             }
 
             stopWatch.stop();
-            System.out.println("Time to query:  " + stopWatch.getTime() + " ms.");
+            System.out.println("Time to query all (" + i + ") words :  " + stopWatch.getTime() + " ms.");
 
         }
     }

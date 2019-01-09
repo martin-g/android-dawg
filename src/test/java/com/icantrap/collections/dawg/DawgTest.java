@@ -12,10 +12,7 @@ import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-/**
- *
- */
-class SimpleDawgTest {
+class DawgTest {
 
     private Dawg dawg;
 
@@ -29,7 +26,6 @@ class SimpleDawgTest {
         }
 
     }
-
 
     @Test
     void contains() {

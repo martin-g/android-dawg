@@ -4,10 +4,11 @@ package com.icantrap.collections.dawg;
 import com.icantrap.collections.Stack;
 import org.apache.commons.io.input.ReaderInputStream;
 import org.apache.commons.io.output.WriterOutputStream;
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.time.StopWatch;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.time.StopWatch;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -46,7 +47,7 @@ public class Dawg
    */
   public void store (Writer writer) throws IOException
   {
-    store (new WriterOutputStream (writer));
+    store (new WriterOutputStream (writer, StandardCharsets.UTF_8));
   }
 
   /**
@@ -76,7 +77,7 @@ public class Dawg
    */
   public static Dawg load (Reader reader) throws IOException
   {
-    return load (new ReaderInputStream (reader));
+    return load (new ReaderInputStream (reader, StandardCharsets.UTF_8));
   }
 
   /**

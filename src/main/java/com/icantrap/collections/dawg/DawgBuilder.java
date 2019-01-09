@@ -2,10 +2,23 @@
 
 package com.icantrap.collections.dawg;
 
-import org.apache.commons.io.LineIterator;
+import java.io.BufferedReader;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Deque;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
 
-import java.io.*;
-import java.util.*;
+import org.apache.commons.io.LineIterator;
 
 /**
  * This class builds a dawg from scratch.  It does this by adding all the words to a trie.  When it's time to build, the
@@ -116,7 +129,7 @@ class DawgBuilder
    */
   public DawgBuilder add (InputStream is) throws IOException
   {
-    return add (new InputStreamReader (is));
+    return add (new InputStreamReader(is));
   }
 
   /**
@@ -154,7 +167,7 @@ class DawgBuilder
   public int nodeCount ()
   {
     int nodeCount = 0;
-    Deque<Node> stack = new LinkedList<Node> ();
+    Deque<Node> stack = new LinkedList<>();
     stack.push (root);
     
     while(!stack.isEmpty ())
@@ -197,12 +210,12 @@ class DawgBuilder
   }
 
   // compression internals
-  private List<Node> nodeList = new ArrayList<Node> ();
-  private Map<Integer, LinkedList<Node>> childDepths = new LinkedHashMap<Integer, LinkedList<Node>> ();
+  private List<Node> nodeList = new ArrayList<>();
+  private Map<Integer, LinkedList<Node>> childDepths = new LinkedHashMap<>();
   
   private void compress ()
   {
-    LinkedList<Node> stack = new LinkedList<Node> ();
+    LinkedList<Node> stack = new LinkedList<>();
     int index = 0;
 
     stack.addLast (root);
@@ -215,8 +228,7 @@ class DawgBuilder
         ptr.siblings = ptr.parent.nextChildren.size () - 1 + (null == ptr.parent.child ? 0 : 1);
       nodeList.add (ptr);
 
-      for (Node nextChild: ptr.nextChildren)
-        stack.add (nextChild);
+      stack.addAll(ptr.nextChildren);
       if (null != ptr.child)
         stack.add (ptr.child);
     }
@@ -245,7 +257,7 @@ class DawgBuilder
       LinkedList<Node> nodes = childDepths.get (node.childDepth);
       if (null == nodes)
       {
-        nodes = new LinkedList<Node> ();
+        nodes = new LinkedList<> ();
         nodes.add (node);
         childDepths.put (node.childDepth, nodes);
       }
@@ -293,7 +305,7 @@ class DawgBuilder
     for (Node node:nodeList)
       node.index = -1;
 
-    LinkedList<Node> stack = new LinkedList<Node> ();
+    LinkedList<Node> stack = new LinkedList<>();
     
     nodeList.clear ();
     stack.clear ();
@@ -339,6 +351,6 @@ class DawgBuilder
     FileReader reader = new FileReader (infilename);
     DawgBuilder builder = new DawgBuilder ();
     Dawg dawg = builder.add (reader).build ();
-    dawg.store (new FileOutputStream (outfilename));
+    dawg.store (new FileOutputStream(outfilename));
   }
 }

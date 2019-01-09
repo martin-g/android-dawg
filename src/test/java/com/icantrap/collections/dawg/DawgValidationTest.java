@@ -2,31 +2,30 @@
 
 package com.icantrap.collections.dawg;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.LineIterator;
-import org.apache.commons.lang.time.StopWatch;
-import org.hamcrest.Matchers;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Set;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.hasItemInArray;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assume.assumeThat;
-import static org.junit.matchers.JUnitMatchers.hasItem;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.LineIterator;
+import org.apache.commons.lang3.time.StopWatch;
+import org.hamcrest.Matchers;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
-public class DawgValidationTest
+class DawgValidationTest
 {
   private static Dawg dawg;
 
-  @BeforeClass
+  @BeforeAll
   public static void init () throws IOException
   {
-    assumeThat (System.getProperty ("RUN_VALIDATION"), is ("on"));
+//    assumeThat (System.getProperty ("RUN_VALIDATION"), is ("on"));
 
     StopWatch stopWatch = new StopWatch ();
     stopWatch.start ();
@@ -36,27 +35,26 @@ public class DawgValidationTest
   }
 
   @Test
-  public void containsAllWords () throws IOException
+  void containsAllWords () throws IOException
   {
-    LineIterator iter = IOUtils.lineIterator (getClass ().getResourceAsStream ("/TWL06.txt"), null);
+    try (LineIterator iter = IOUtils.lineIterator (getClass ().getResourceAsStream ("/TWL06.txt"), StandardCharsets.UTF_8)) {
 
-    StopWatch stopWatch = new StopWatch ();
-    stopWatch.start ();
+      StopWatch stopWatch = new StopWatch();
+      stopWatch.start();
 
-    while (iter.hasNext ())
-    {
-      String word = iter.next ();
-      assertTrue ("Missing word (" + word + ")", dawg.contains (word));
+      while (iter.hasNext()) {
+        String word = iter.next();
+        assertTrue(dawg.contains(word), "Missing word (" + word + ")");
+      }
+
+      stopWatch.stop();
+      System.out.println("Time to query:  " + stopWatch.getTime() + " ms.");
+
     }
-
-    stopWatch.stop ();
-    System.out.println ("Time to query:  " + stopWatch.getTime () + " ms.");
-
-    LineIterator.closeQuietly (iter);
   }
   
   @Test
-  public void subwords_noWildcards ()
+  void subwords_noWildcards ()
   {
     Dawg.Result[] subwords = dawg.subwords ("PHONE", null);
     Set<String> words = Dawg.extractWords (subwords);
@@ -76,7 +74,7 @@ public class DawgValidationTest
   }
   
   @Test
-  public void subwords_wildcard ()
+  void subwords_wildcard ()
   {
     Dawg.Result[] subwords = dawg.subwords ("?Q", null);
     Set<String> words = Dawg.extractWords (subwords);

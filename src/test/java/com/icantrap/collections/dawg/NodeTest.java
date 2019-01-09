@@ -2,36 +2,36 @@
 package com.icantrap.collections.dawg;
 
 
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.Test;
 
-public class NodeTest
+class NodeTest
 {
   @Test
-  public void equals_null ()
+  void equals_null ()
   {
     Node node = new Node ('x');
     assertFalse (node.equals (null));
   }
 
   @Test
-  public void equals_sameObject ()
+  void equals_sameObject ()
   {
     Node node = new Node ('x');
     assertTrue (node.equals (node));
   }
 
   @Test
-  public void equals_differentType ()
+  void equals_differentType ()
   {
     Node node = new Node ('x');
     assertFalse (node.equals (7));
   }
 
   @Test
-  public void equals_differentValue ()
+  void equals_differentValue ()
   {
     Node lhs = new Node ('x');
     Node rhs = new Node ('y');
@@ -40,7 +40,7 @@ public class NodeTest
   }
   
   @Test
-  public void equals_differentTerminal ()
+  void equals_differentTerminal ()
   {
     Node lhs = new Node ('x');
     lhs.terminal = true;
@@ -51,7 +51,7 @@ public class NodeTest
   }
 
   @Test
-  public void equals_differentChildPresence1 ()
+  void equals_differentChildPresence1 ()
   {
     Node lhs = new Node ('x');
     lhs.addChild ('a');
@@ -61,7 +61,7 @@ public class NodeTest
   }
 
   @Test
-  public void equals_differentChildPresence2 ()
+  void equals_differentChildPresence2 ()
   {
     Node lhs = new Node ('x');
     Node rhs = new Node ('x');
@@ -71,7 +71,7 @@ public class NodeTest
   }
 
   @Test
-  public void equals_matchingChildred1 ()
+  void equals_matchingChildred1 ()
   {
     Node lhs = new Node ('x');
     lhs.addChild ('a');
@@ -82,7 +82,7 @@ public class NodeTest
   }
 
   @Test
-  public void equals_matchingChildred2 ()
+  void equals_matchingChildred2 ()
   {
     Node lhs = new Node ('x');
     lhs.addChild ('a');
@@ -97,7 +97,7 @@ public class NodeTest
   }
 
   @Test
-  public void equals_matchingChildredRecursive ()
+  void equals_matchingChildredRecursive ()
   {
     Node lhs = new Node ('x');
     lhs.addChild ('a');
@@ -112,7 +112,7 @@ public class NodeTest
   }
 
   @Test
-  public void equals_differentChildren ()
+  void equals_differentChildren ()
   {
     Node lhs = new Node ('x');
     lhs.addChild ('a');
@@ -124,7 +124,7 @@ public class NodeTest
   }
 
   @Test
-  public void equals_differentChildredRecursive ()
+  void equals_differentChildredRecursive ()
   {
     Node lhs = new Node ('x');
     lhs.addChild ('a');

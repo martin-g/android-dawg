@@ -2,37 +2,36 @@
 
 package com.icantrap.collections.dawg;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.LineIterator;
-import org.apache.commons.lang.time.StopWatch;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assume.assumeThat;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.LineIterator;
+import org.apache.commons.lang3.time.StopWatch;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class TrieValidationTest
+class TrieValidationTest
 {
   private DawgBuilder dawgBuilder;
 
-  @Before
-  public void before () throws IOException
+  @BeforeEach
+  void before () throws IOException
   {
-    assumeThat (System.getProperty ("RUN_VALIDATION"), is ("on"));
-    LineIterator iter = IOUtils.lineIterator (getClass ().getResourceAsStream ("/TWL06.txt"), null);
-    dawgBuilder = new DawgBuilder ();
+//    assumeThat (System.getProperty ("RUN_VALIDATION"), is ("on"));
+    try (LineIterator iter = IOUtils.lineIterator (getClass ().getResourceAsStream ("/TWL06.txt"), StandardCharsets.UTF_8)) {
+      dawgBuilder = new DawgBuilder();
 
-    while (iter.hasNext ())
-      dawgBuilder.add (iter.next ());
-    
-    LineIterator.closeQuietly (iter);
+      while (iter.hasNext())
+        dawgBuilder.add(iter.next());
+
+    }
 
     System.out.println ("Uncompressed:  " + dawgBuilder.nodeCount () + " nodes");
 
-    StopWatch stopWatch = new StopWatch ();
+    StopWatch stopWatch = new StopWatch();
     stopWatch.start ();
     dawgBuilder.build ();
     stopWatch.stop ();
@@ -42,22 +41,21 @@ public class TrieValidationTest
   }
 
   @Test
-  public void containsAllWords () throws IOException
+  void containsAllWords () throws IOException
   {
-    LineIterator iter = IOUtils.lineIterator (getClass ().getResourceAsStream ("/TWL06.txt"), null);
+    try (LineIterator iter = IOUtils.lineIterator (getClass ().getResourceAsStream ("/TWL06.txt"), StandardCharsets.UTF_8)) {
 
-    StopWatch stopWatch = new StopWatch ();
-    stopWatch.start ();
-    
-    while (iter.hasNext ())
-    {
-      String word = iter.next ();
-      assertTrue ("Missing word (" + word + ")", dawgBuilder.contains (word));
+      StopWatch stopWatch = new StopWatch();
+      stopWatch.start();
+
+      while (iter.hasNext()) {
+        String word = iter.next();
+        assertTrue(dawgBuilder.contains(word), "Missing word (" + word + ")");
+      }
+
+      stopWatch.stop();
+      System.out.println("Time to query:  " + stopWatch.getTime() + " ms.");
+
     }
-    
-    stopWatch.stop ();
-    System.out.println ("Time to query:  " + stopWatch.getTime () + " ms.");
-
-    LineIterator.closeQuietly (iter);    
   }
 }

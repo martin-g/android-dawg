@@ -5,7 +5,6 @@ package com.icantrap.collections.dawg;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayOutputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
@@ -25,17 +24,25 @@ class DawgPerformanceTest {
         try (LineIterator iter = IOUtils.lineIterator(getClass().getResourceAsStream("/TWL06.txt"), StandardCharsets.UTF_8)) {
             DawgBuilder dawgBuilder = new DawgBuilder();
 
-            while (iter.hasNext())
-                dawgBuilder.add(iter.next());
+            StopWatch importStopWatch = new StopWatch();
+            importStopWatch.start();
 
+            int lines = 0;
+            while (iter.hasNext()) {
+                dawgBuilder.add(iter.next());
+                lines++;
+            }
+
+            importStopWatch.stop();
+            System.out.println("Time to import " + lines + " words/phrases :  " + importStopWatch.getTime() + " ms.");
             System.out.println("Uncompressed:  " + dawgBuilder.nodeCount() + " nodes");
 
-            StopWatch stopWatch = new StopWatch();
-            stopWatch.start();
+            StopWatch compressStopWatch = new StopWatch();
+            compressStopWatch.start();
             dawg = dawgBuilder.build();
-            stopWatch.stop();
+            compressStopWatch.stop();
 
-            System.out.println("Time to compress:  " + stopWatch.getTime() + " ms.");
+            System.out.println("Time to compress:  " + compressStopWatch.getTime() + " ms.");
         }
 
         System.out.println("Compressed:  " + dawg.nodeCount() + " nodes");
@@ -44,8 +51,6 @@ class DawgPerformanceTest {
         dawg.store(baos);
         final int size = baos.toByteArray().length;
         System.out.println("Runtime size:  " + size + " bytes");
-
-        dawg.store(new FileOutputStream("/tmp/dawg.dat"));
     }
 
     @Test

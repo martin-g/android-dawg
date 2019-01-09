@@ -9,26 +9,24 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Set;
 
-import org.junit.jupiter.api.BeforeEach;
+import org.apache.commons.lang3.time.StopWatch;
 import org.junit.jupiter.api.Test;
 
 class DawgTest {
 
-    private Dawg dawg;
+    private Dawg createDawg(String txtFile) throws IOException {
 
-    @BeforeEach
-    void setup() throws IOException {
-
-        try (InputStream inputStream = Dawg.class.getClassLoader().getResourceAsStream("words.txt")) {
+        try (InputStream inputStream = Dawg.class.getClassLoader().getResourceAsStream(txtFile)) {
             final DawgBuilder dawgBuilder = new DawgBuilder();
             dawgBuilder.add(inputStream);
-            dawg = dawgBuilder.build();
+            return dawgBuilder.build();
         }
 
     }
 
     @Test
-    void contains() {
+    void contains() throws IOException {
+        Dawg dawg = createDawg("words.txt");
         assertFalse(dawg.contains("aaa"));
         assertTrue(dawg.contains("blip"));
         assertTrue(dawg.contains("can"));
@@ -41,16 +39,23 @@ class DawgTest {
     }
 
     @Test
-    void suggest() {
-        final Set<String> suggestions = dawg.suggest("ca");
+    void suggest() throws IOException {
+        Dawg dawg = createDawg("TWL06.txt");
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+        final Set<String> suggestions = dawg.suggest("zoo");
+        stopWatch.stop();
+
+        System.out.println("Time to lookup " + suggestions.size() + " suggestions:  " + stopWatch.getTime() + " ms.");
 
         assertAll(
-            () -> assertEquals(5, suggestions.size()),
-            () -> assertTrue(suggestions.contains("can"), "can"),
-            () -> assertTrue(suggestions.contains("cat"), "cat"),
-            () -> assertTrue(suggestions.contains("cat in a box"), "cat in a box"),
-            () -> assertTrue(suggestions.contains("cate"), "cate"),
-            () -> assertTrue(suggestions.contains("cats"), "cats")
+            () -> assertEquals(111, suggestions.size()),
+            () -> assertFalse(suggestions.contains("notZoo".toLowerCase()), "notZoo"),
+            () -> assertTrue(suggestions.contains("ZOO".toLowerCase()), "ZOO"),
+            () -> assertTrue(suggestions.contains("ZOOPHOBIAS as a phrase".toLowerCase()), "ZOOPHOBIAS as a phrase"),
+            () -> assertTrue(suggestions.contains("ZOOPLANKTER".toLowerCase()), "ZOOPLANKTER"),
+            () -> assertTrue(suggestions.contains("ZOOSPORES".toLowerCase()), "ZOOSPORES"),
+            () -> assertTrue(suggestions.contains("ZOOXANTHELLAE".toLowerCase()), "ZOOXANTHELLAE")
         );
     }
 }

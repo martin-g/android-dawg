@@ -23,8 +23,6 @@ class DawgValidationTest {
 
     @BeforeAll
     public static void init() throws IOException {
-//    assumeThat (System.getProperty ("RUN_VALIDATION"), is ("on"));
-
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         dawg = Dawg.load(DawgValidationTest.class.getResourceAsStream("/twl06.dat"));

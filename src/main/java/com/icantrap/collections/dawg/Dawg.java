@@ -29,7 +29,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.time.StopWatch;
 
 import com.icantrap.collections.Stack;
-import com.sun.org.apache.xpath.internal.axes.ChildIterator;
 
 /**
  * An implementation of a Directed Acyclic Word Graph.  This implementation is intended to be efficiently stored, loaded,
@@ -38,6 +37,7 @@ import com.sun.org.apache.xpath.internal.axes.ChildIterator;
 public class Dawg {
     private static final Pattern LETTERS_REGEX = Pattern.compile("[A-Za-z?]+");
     private static final Pattern PATTERN_REGEX = Pattern.compile("\\$?[A-Z?]*\\$?");
+    private static final int NO_NODE = -1;
 
     private int[] nodes;
 
@@ -143,7 +143,7 @@ public class Dawg {
 
         for (char c : letters) {
             ptr = findChild(ptr, c);
-            if (-1 == ptr)
+            if (NO_NODE == ptr)
                 return false;
         }
 
@@ -165,11 +165,17 @@ public class Dawg {
     private void suggestRecursive(Set<String> suggestions, String prefix, int root) {
         int parent = root;
         char[] letters = prefix.toUpperCase().toCharArray();
+        int i = 0;
         for (char c : letters) {
             parent = findChild(parent, c);
-            if (-1 == parent) {
+            if (NO_NODE == parent) {
                 return;
             }
+            i++;
+        }
+
+        if (i == letters.length && canTerminate(parent)) {
+            suggestions.add(prefix.toLowerCase());
         }
 
         final ChildIterator iterator = childIterator(parent);
@@ -429,7 +435,7 @@ public class Dawg {
                                     stack.push(new StackEntry(iter.next(), letters, subword, wildcardPositions, patternIndex));
                             else {
                                 int candidate = findChild(node, letter);
-                                if (-1 != candidate)
+                                if (NO_NODE != candidate)
                                     stack.push(new StackEntry(candidate, letters, subword, wildcardPositions, patternIndex));
                             }
                         }
@@ -439,7 +445,7 @@ public class Dawg {
                         break;
                     default:
                         int candidate = findChild(node, patternToken.letter);
-                        if (-1 != candidate)
+                        if (NO_NODE != candidate)
                             stack.push(new StackEntry(candidate, letters, subword, wildcardPositions, patternIndex));
                         break;
                 }
@@ -447,7 +453,7 @@ public class Dawg {
             {
                 if (patternToken.letter != '?') {
                     int candidate = findChild(node, patternToken.letter);
-                    if (candidate != -1)
+                    if (candidate != NO_NODE)
                         stack.push(new StackEntry(candidate, letters, subword, wildcardPositions, patternIndex));
                 }
 
@@ -464,7 +470,7 @@ public class Dawg {
         else // add the children that match a letter
             for (char letter : getUniqueLetters(letters)) {
                 int candidate = findChild(node, letter);
-                if (-1 != candidate)
+                if (NO_NODE != candidate)
                     stack.push(new StackEntry(candidate, letters, subword, wildcardPositions, patternIndex));
             }
     }
@@ -523,7 +529,7 @@ public class Dawg {
         }
 
         public boolean hasNext() {
-            if (-1 == childIndex)
+            if (NO_NODE == childIndex)
                 return false;
 
             return !isLastChild(child);
@@ -557,7 +563,7 @@ public class Dawg {
                 return child;
         }
 
-        return -1;
+        return NO_NODE;
     }
 
     private static int getFirstChildIndex(int node) {

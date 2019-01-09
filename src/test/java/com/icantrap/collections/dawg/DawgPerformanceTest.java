@@ -5,6 +5,7 @@ package com.icantrap.collections.dawg;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
@@ -43,6 +44,8 @@ class DawgPerformanceTest {
         dawg.store(baos);
         final int size = baos.toByteArray().length;
         System.out.println("Runtime size:  " + size + " bytes");
+
+        dawg.store(new FileOutputStream("/tmp/dawg.dat"));
     }
 
     @Test

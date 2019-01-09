@@ -6,10 +6,8 @@ import java.io.IOException;
 /**
  * Exception thrown when a Dawg can't be loaded from a data file.
  */
-public class DataFormatException extends IOException
-{
-  public DataFormatException (String message, Throwable cause)
-  {
-    super (message, cause);
-  }
+public class DataFormatException extends IOException {
+    public DataFormatException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

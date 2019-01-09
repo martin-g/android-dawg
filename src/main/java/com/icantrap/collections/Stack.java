@@ -5,43 +5,37 @@ package com.icantrap.collections;
 import java.util.EmptyStackException;
 import java.util.LinkedList;
 
-public class Stack<E>
-{
-  private final LinkedList<E> entries;
+public class Stack<E> {
+    private final LinkedList<E> entries;
 
-  public Stack ()
-  {
-    entries = new LinkedList<E> ();
-  }
+    public Stack() {
+        entries = new LinkedList<E>();
+    }
 
-  public boolean empty ()
-  {
-    return entries.isEmpty ();
-  }
+    public boolean empty() {
+        return entries.isEmpty();
+    }
 
-  public E peek ()
-  {
-    int size = entries.size ();
+    public E peek() {
+        int size = entries.size();
 
-    if (size <= 0)
-      throw new EmptyStackException ();
+        if (size <= 0)
+            throw new EmptyStackException();
 
-    return entries.get (size - 1);
-  }
+        return entries.get(size - 1);
+    }
 
-  public E pop ()
-  {
-    int size = entries.size ();
+    public E pop() {
+        int size = entries.size();
 
-    if (size <= 0)
-      throw new EmptyStackException ();
+        if (size <= 0)
+            throw new EmptyStackException();
 
-    return entries.remove (size - 1);
-  }
+        return entries.remove(size - 1);
+    }
 
-  public E push (E entry)
-  {
-    entries.add (entry);
-    return entry;
-  }
+    public E push(E entry) {
+        entries.add(entry);
+        return entry;
+    }
 }

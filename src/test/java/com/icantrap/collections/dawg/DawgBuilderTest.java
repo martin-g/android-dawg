@@ -22,127 +22,113 @@ import org.junit.jupiter.api.Test;
  * @see DawgBuilder#add(Collection)
  * @see DawgBuilder#wordCount()
  */
-class DawgBuilderTest
-{
-  private static final String[] WORD_LIST = { "SEARCH", "SEARCHED", "SEARCHING" };
+class DawgBuilderTest {
+    private static final String[] WORD_LIST = {"SEARCH", "SEARCHED", "SEARCHING"};
 
-  private DawgBuilder dawgBuilder;
+    private DawgBuilder dawgBuilder;
 
-  @BeforeEach
-  void setup ()
-  {
-    dawgBuilder = new DawgBuilder ();
+    @BeforeEach
+    void setup() {
+        dawgBuilder = new DawgBuilder();
 
 //    assumeThat (dawgBuilder.wordCount (), is (0));
-  }
+    }
 
-  @Test
-  void add ()
-  {
-    dawgBuilder.add ("jimmy");
+    @Test
+    void add() {
+        dawgBuilder.add("jimmy");
 
-    assertThat ("Expected word count to increment; it did not.", dawgBuilder.wordCount (), is (1));
-  }
+        assertThat("Expected word count to increment; it did not.", dawgBuilder.wordCount(), is(1));
+    }
 
-  @Test
-  void add_null ()
-  {
-    dawgBuilder.add ((String) null);
+    @Test
+    void add_null() {
+        dawgBuilder.add((String) null);
 
-    assertThat (dawgBuilder.wordCount (), is (0));
-  }
+        assertThat(dawgBuilder.wordCount(), is(0));
+    }
 
-  @Test
-  void add_shortWord ()
-  {
-    dawgBuilder.add ("j");
+    @Test
+    void add_shortWord() {
+        dawgBuilder.add("j");
 
-    assertThat (dawgBuilder.wordCount (), is (0));
-  }
+        assertThat(dawgBuilder.wordCount(), is(0));
+    }
 
-  @Test
-  void add_repeat ()
-  {
-    dawgBuilder.add ("JIMMY");
-    assumeThat (dawgBuilder.wordCount (), is (1));
+    @Test
+    void add_repeat() {
+        dawgBuilder.add("JIMMY");
+        assumeThat(dawgBuilder.wordCount(), is(1));
 
-    dawgBuilder.add ("jimmy");  // also tests the uppercase-ness
+        dawgBuilder.add("jimmy");  // also tests the uppercase-ness
 
-    assertThat (dawgBuilder.wordCount (), is (1));
-  }
+        assertThat(dawgBuilder.wordCount(), is(1));
+    }
 
-  private void assumeThat(int wordCount, Matcher<Integer> integerMatcher) {
-  }
+    private void assumeThat(int wordCount, Matcher<Integer> integerMatcher) {
+    }
 
-  @Test
-  void add_subwordFirst ()
-  {
-    dawgBuilder.add ("JIMMY");
-    assumeThat (dawgBuilder.wordCount (), is (1));
+    @Test
+    void add_subwordFirst() {
+        dawgBuilder.add("JIMMY");
+        assumeThat(dawgBuilder.wordCount(), is(1));
 
-    dawgBuilder.add ("JIM");
+        dawgBuilder.add("JIM");
 
-    assertThat (dawgBuilder.wordCount (), is (2));
-  }
+        assertThat(dawgBuilder.wordCount(), is(2));
+    }
 
-  @Test
-  void add_subwordLast ()
-  {
-    dawgBuilder.add ("JIM");
-    assumeThat (dawgBuilder.wordCount (), is (1));
+    @Test
+    void add_subwordLast() {
+        dawgBuilder.add("JIM");
+        assumeThat(dawgBuilder.wordCount(), is(1));
 
-    dawgBuilder.add ("JIMMY");
+        dawgBuilder.add("JIMMY");
 
-    assertThat (dawgBuilder.wordCount (), is (2));
-  }
+        assertThat(dawgBuilder.wordCount(), is(2));
+    }
 
-  @Test
-  void add_list ()
-  {
-    dawgBuilder.add (Arrays.asList (WORD_LIST));
+    @Test
+    void add_list() {
+        dawgBuilder.add(Arrays.asList(WORD_LIST));
 
-    assertThat (dawgBuilder.wordCount (), is (3));
+        assertThat(dawgBuilder.wordCount(), is(3));
 
-    for (String word: WORD_LIST)
-      assertTrue (dawgBuilder.contains (word));
-  }
+        for (String word : WORD_LIST)
+            assertTrue(dawgBuilder.contains(word));
+    }
 
-  @Test
-  void add_array ()
-  {
-    dawgBuilder.add (WORD_LIST);
+    @Test
+    void add_array() {
+        dawgBuilder.add(WORD_LIST);
 
-    assertThat (dawgBuilder.wordCount (), is (3));
+        assertThat(dawgBuilder.wordCount(), is(3));
 
-    for (String word: WORD_LIST)
-      assertTrue (dawgBuilder.contains (word));
-  }
+        for (String word : WORD_LIST)
+            assertTrue(dawgBuilder.contains(word));
+    }
 
-  @Test
-  void contains ()
-  {
-    dawgBuilder.add ("JIMMY");
+    @Test
+    void contains() {
+        dawgBuilder.add("JIMMY");
 
-    assertTrue (dawgBuilder.contains ("jimmy")); // also tests uppercase-ness
-  }
+        assertTrue(dawgBuilder.contains("jimmy")); // also tests uppercase-ness
+    }
 
-  @Test
-  void contains_null ()
-  {
-    assertFalse (dawgBuilder.contains (null));
-  }
+    @Test
+    void contains_null() {
+        assertFalse(dawgBuilder.contains(null));
+    }
 
-  @Test
-  void contains_shortWord ()
-  {
-    assertFalse (dawgBuilder.contains ("j"));
-  }
+    @Test
+    void contains_shortWord() {
+        assertFalse(dawgBuilder.contains("j"));
+    }
 
-  @Test
-  void contains_doesNot ()
-  {
-    dawgBuilder.add ("JIMMY");
+    @Test
+    void contains_doesNot() {
+        dawgBuilder.add("JIMMY");
 
-    assertFalse (dawgBuilder.contains ("JAMES"));
-  }
+        assertFalse(dawgBuilder.contains("JAMES"));
+    }
 }

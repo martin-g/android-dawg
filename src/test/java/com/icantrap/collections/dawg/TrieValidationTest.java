@@ -13,49 +13,46 @@ import org.apache.commons.lang3.time.StopWatch;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class TrieValidationTest
-{
-  private DawgBuilder dawgBuilder;
+class TrieValidationTest {
+    private DawgBuilder dawgBuilder;
 
-  @BeforeEach
-  void before () throws IOException
-  {
+    @BeforeEach
+    void before() throws IOException {
 //    assumeThat (System.getProperty ("RUN_VALIDATION"), is ("on"));
-    try (LineIterator iter = IOUtils.lineIterator (getClass ().getResourceAsStream ("/TWL06.txt"), StandardCharsets.UTF_8)) {
-      dawgBuilder = new DawgBuilder();
+        try (LineIterator iter = IOUtils.lineIterator(getClass().getResourceAsStream("/TWL06.txt"), StandardCharsets.UTF_8)) {
+            dawgBuilder = new DawgBuilder();
 
-      while (iter.hasNext())
-        dawgBuilder.add(iter.next());
+            while (iter.hasNext())
+                dawgBuilder.add(iter.next());
 
+        }
+
+        System.out.println("Uncompressed:  " + dawgBuilder.nodeCount() + " nodes");
+
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+        dawgBuilder.build();
+        stopWatch.stop();
+
+        System.out.println("Time to compress:  " + stopWatch.getTime() + " ms.");
+        System.out.println("Compressed:  " + dawgBuilder.nodeCount() + " nodes");
     }
 
-    System.out.println ("Uncompressed:  " + dawgBuilder.nodeCount () + " nodes");
+    @Test
+    void containsAllWords() throws IOException {
+        try (LineIterator iter = IOUtils.lineIterator(getClass().getResourceAsStream("/TWL06.txt"), StandardCharsets.UTF_8)) {
 
-    StopWatch stopWatch = new StopWatch();
-    stopWatch.start ();
-    dawgBuilder.build ();
-    stopWatch.stop ();
-    
-    System.out.println ("Time to compress:  " + stopWatch.getTime () + " ms.");
-    System.out.println ("Compressed:  " + dawgBuilder.nodeCount () + " nodes");
-  }
+            StopWatch stopWatch = new StopWatch();
+            stopWatch.start();
 
-  @Test
-  void containsAllWords () throws IOException
-  {
-    try (LineIterator iter = IOUtils.lineIterator (getClass ().getResourceAsStream ("/TWL06.txt"), StandardCharsets.UTF_8)) {
+            while (iter.hasNext()) {
+                String word = iter.next();
+                assertTrue(dawgBuilder.contains(word), "Missing word (" + word + ")");
+            }
 
-      StopWatch stopWatch = new StopWatch();
-      stopWatch.start();
+            stopWatch.stop();
+            System.out.println("Time to query:  " + stopWatch.getTime() + " ms.");
 
-      while (iter.hasNext()) {
-        String word = iter.next();
-        assertTrue(dawgBuilder.contains(word), "Missing word (" + word + ")");
-      }
-
-      stopWatch.stop();
-      System.out.println("Time to query:  " + stopWatch.getTime() + " ms.");
-
+        }
     }
-  }
 }

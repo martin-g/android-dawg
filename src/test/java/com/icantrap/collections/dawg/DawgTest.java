@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.util.Set;
 
 import org.apache.commons.lang3.time.StopWatch;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 class DawgTest {
@@ -39,6 +40,7 @@ class DawgTest {
     }
 
     @Test
+    @DisplayName("Searching for a prefix, e.g. 'zoo' should return all suggestions starting with it, including the phrases")
     void suggest() throws IOException {
         Dawg dawg = createDawg("TWL06.txt");
         StopWatch stopWatch = new StopWatch();
@@ -56,6 +58,19 @@ class DawgTest {
             () -> assertTrue(suggestions.contains("ZOOPLANKTER".toLowerCase()), "ZOOPLANKTER"),
             () -> assertTrue(suggestions.contains("ZOOSPORES".toLowerCase()), "ZOOSPORES"),
             () -> assertTrue(suggestions.contains("ZOOXANTHELLAE".toLowerCase()), "ZOOXANTHELLAE")
+        );
+    }
+
+    @Test
+    @DisplayName("Searching for prefixes of words in a phrase, e.g. 'ca i bo', should return all suggestions starting with 'ca' and containing 'i' and 'bo'")
+    void suggestPhrasePrefixes() throws IOException {
+        final Dawg dawg = createDawg("words.txt");
+
+        final Set<String> suggestionsPhrasePrefixes = dawg.suggest("ca bo");
+
+        assertAll(
+            () -> assertEquals(1, suggestionsPhrasePrefixes.size()),
+            () -> assertTrue(suggestionsPhrasePrefixes.contains("cat in a box".toLowerCase()), "cat in a box")
         );
     }
 }

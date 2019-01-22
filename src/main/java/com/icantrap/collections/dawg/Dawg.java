@@ -35,7 +35,7 @@ import com.icantrap.collections.Stack;
  * and used with Android apps.  This means that the storage format and memory footprint have been minimized.
  */
 public class Dawg {
-    private static final Pattern LETTERS_REGEX = Pattern.compile("[A-Za-z?]+");
+    private static final Pattern LETTERS_REGEX = Pattern.compile("[A-Za-z? ]+");
     private static final Pattern PATTERN_REGEX = Pattern.compile("\\$?[A-Z?]*\\$?");
     private static final int NO_NODE = -1;
 
@@ -157,7 +157,21 @@ public class Dawg {
 
         final Set<String> suggestions = new TreeSet<>();
 
-        suggestRecursive(suggestions, prefix, nodes[0]);
+        final String[] prefixes = prefix.split(" ");
+        if (prefixes.length == 1) {
+            suggestRecursive(suggestions, prefix, nodes[0]);
+        } else {
+            suggestRecursive(suggestions, prefixes[0], nodes[0]);
+            suggestions.removeIf(word -> {
+                for (int i = 1; i < prefixes.length; i++) {
+                    String _prefix = prefixes[i];
+                    if (!word.contains(_prefix.toLowerCase())) {
+                        return true;
+                    }
+                }
+                return false;
+            });
+        }
 
         return suggestions;
     }
